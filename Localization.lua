@@ -1,9 +1,3 @@
---[[
-	Threat - English Localization
-
-	By: Ollowain
-]]--
-
 BINDING_NAME_THREAT               = "Attack";
 BINDING_HEADER_THREAT             = "Threat";
 
@@ -41,4 +35,9 @@ SLASH_THREAT_ENABLED              = "enabled";
 SLASH_THREAT_DISABLED             = "disabled";
 SLASH_THREAT_DEFAULT              = "default";
 SLASH_THREAT_DEBUG                = "Debug";
-SLASH_THREAT_HELP                 = "Help text, under construction!";
+SLASH_THREAT_HELP_GENERAL         = "Available commands:";
+SLASH_THREAT_HELP_HELP            = "/threat help - shows this message";
+SLASH_THREAT_HELP_SUNDER          = "/threat sunder - always use Sunder Armor if it's not at 5 stacks";
+SLASH_THREAT_HELP_SHOUT           = "/threat shout - always use Battle Shout if it's not buffed on yourself";
+SLASH_THREAT_SUNDER		  = "Always stack Sunder Armor"
+SLASH_THREAT_SHOUT		  = "Always keep Battle Shout on yourself"

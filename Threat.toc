@@ -4,5 +4,5 @@
 ## Author: Zedorff
 ## DefaultState: enabled
 ## OptionalDeps: none
-## SavedVariables: ShouldStackSunder, ShouldBuffShout
+## SavedVariables: ShouldStackSunder, ShouldBuffShout, ShouldJudgementWisdom, ShouldStackZeal
 Threat.xml

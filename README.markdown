@@ -14,7 +14,7 @@ included, since they have different intentions.
 Clone the repository into your `Addons` folder:
 
     cd <WOW_BASE_DIR>/Interface/Addons
-    git clone https://github.com/muellerj/Threat
+    git clone https://github.com/Zedorff/Threat
 
 Create a macro to call `Threat()` or `/threat`:
 
@@ -30,20 +30,5 @@ Create a macro to call `Threat()` or `/threat`:
 
     /threat             Cast "best" threat ability
     /threat debug       Toggle debug messages on/off
-
-## Bugtracker
-
-Please create an issue at https://github.com/muellerj/Threat/issues
-
-## Credit
-
-Many of the boilerplate functions are taken directly from `Fury.lua` by Bhaerau
-(http://www.vanilla-addons.com/dls/fury/).
-
-## Contributing
-
-1. Fork it (https://github.com/muellerj/Threat/fork)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+    /threat sunder      Stack 5 sunder always
+    /threat shout       Always keep Battle Shount on yourself

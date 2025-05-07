@@ -1,7 +1,8 @@
 ## Interface: 12000
 ## Title: Threat
 ## Notes: To make Warrior tanking easier.
-## Author: Ollowain
+## Author: Zedorff
 ## DefaultState: enabled
 ## OptionalDeps: none
+## SavedVariables: ShouldStackSunder, ShouldBuffShout
 Threat.xml

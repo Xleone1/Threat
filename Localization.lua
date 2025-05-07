@@ -3,6 +3,7 @@ BINDING_HEADER_THREAT             = "Threat";
 
 CLASS_WARRIOR_THREAT              = "Warrior";
 CLASS_PALADIN_THREAT              = "Paladin";
+CLASS_DRUID_THREAT                = "Druid";
 
 
 -- Warrior
@@ -41,6 +42,11 @@ ABILITY_JUDGEMENT                 = "Judgement";
 ABILITY_HOLY_STRILE               = "Holy Strike";
 ABILITY_HOLY_SHIELD               = "Holy Shield";
 ABILITY_SEAL_OF_RIGHTEOUSNESS     = "Seal of Righteousness"
+
+-- Druid
+ABILITY_SAVAGE_BITE               = "Savage Bite"
+ABILITY_MAUL                      = "Maul"
+ABILITY_SWIPE                     = "Swipe"
 
 SLASH_THREAT_ENABLED              = "enabled";
 SLASH_THREAT_DISABLED             = "disabled";

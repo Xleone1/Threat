@@ -237,9 +237,12 @@ function Threat_SlashCommand(msg)
     end
   else
     Print(SLASH_THREAT_HELP_GENERAL)
+    Print(SLASH_THREAT_HELP_GENERAL_WARRIOR)
     Print(SLASH_THREAT_HELP_HELP)
     Print(SLASH_THREAT_HELP_SUNDER)
     Print(SLASH_THREAT_HELP_SHOUT)
+    Print(SLASH_THREAT_HELP_GENERAL_PALADIN)
+    Print(SLASH_THREAT_HELP_WISDOM)
   end
 end
 

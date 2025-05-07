@@ -2,7 +2,10 @@ BINDING_NAME_THREAT               = "Attack";
 BINDING_HEADER_THREAT             = "Threat";
 
 CLASS_WARRIOR_THREAT              = "Warrior";
+CLASS_PALADIN_THREAT              = "Paladin";
 
+
+-- Warrior
 ABILITY_BATTLE_SHOUT_THREAT       = "Battle Shout";
 ABILITY_BATTLE_STANCE_THREAT      = "Battle Stance";
 ABILITY_BERSERKER_RAGE_THREAT     = "Berserker Rage";
@@ -31,13 +34,25 @@ ABILITY_SWEEPING_STRIKES_THREAT   = "Sweeping Strikes";
 ABILITY_TAUNT_THREAT              = "Taunt";
 ABILITY_THUNDER_CLAP_THREAT       = "Thunder Clap";
 
+-- Paladin
+ABILITY_RIGHTEOUS_FURY            = "Righteous Fury";
+ABILITY_SEAL_OF_WISDOM            = "Seal Of Wisdom";
+ABILITY_JUDGEMENT                 = "Judgement";
+ABILITY_HOLY_STRILE               = "Holy Strike";
+ABILITY_HOLY_SHIELD               = "Holy Shield";
+ABILITY_SEAL_OF_RIGHTEOUSNESS     = "Seal of Righteousness"
+
 SLASH_THREAT_ENABLED              = "enabled";
 SLASH_THREAT_DISABLED             = "disabled";
 SLASH_THREAT_DEFAULT              = "default";
 SLASH_THREAT_DEBUG                = "Debug";
 SLASH_THREAT_HELP_GENERAL         = "Available commands:";
-SLASH_THREAT_HELP_HELP            = "/threat help - shows this message";
-SLASH_THREAT_HELP_SUNDER          = "/threat sunder - always use Sunder Armor if it's not at 5 stacks";
-SLASH_THREAT_HELP_SHOUT           = "/threat shout - always use Battle Shout if it's not buffed on yourself";
-SLASH_THREAT_SUNDER		  = "Always stack Sunder Armor"
-SLASH_THREAT_SHOUT		  = "Always keep Battle Shout on yourself"
+SLASH_THREAT_HELP_GENERAL_WARRIOR = "Warrior";
+SLASH_THREAT_HELP_HELP            = "   /threat help - shows this message";
+SLASH_THREAT_HELP_SUNDER          = "   /threat sunder - always use Sunder Armor if it's not at 5 stacks";
+SLASH_THREAT_HELP_SHOUT           = "   /threat shout - always use Battle Shout if it's not buffed on yourself";
+SLASH_THREAT_HELP_GENERAL_PALADIN = "Paladin";
+SLASH_THREAT_HELP_WISDOM          = "   /threat wisdom - always use Judgement of Wisdom on target if it is missing";
+SLASH_THREAT_SUNDER		          = "Always stack Sunder Armor";
+SLASH_THREAT_SHOUT		          = "Always keep Battle Shout on yourself";
+SLASH_THREAT_WISDOM		          = "Always keep Judgement of Wisdom on target";

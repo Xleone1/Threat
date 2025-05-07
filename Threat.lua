@@ -70,6 +70,19 @@ function HasBuff(unit, texturename)
   return nil;
 end
 
+function HasDebuff(unit, texturename)
+  local id = 1
+  local debuffTexture = UnitDebuff(unit, id)
+  while debuffTexture do
+    if string.find(debuffTexture, texturename) then
+      return true
+    end
+    id = id + 1
+    debuffTexture = UnitDebuff(unit, id)
+  end
+  return false
+end
+
 function ActiveStance()
   for i = 1, 3 do
     local _, _, active = GetShapeshiftFormInfo(i);
@@ -106,34 +119,78 @@ end
 
 
 function Threat()
-  if (not UnitIsCivilian("target") and UnitClass("player") == CLASS_WARRIOR_THREAT) then
-
-    local rage = UnitMana("player");
-
-    if (ActiveStance() ~= 2) then
-      Debug("Changing to def stance");
-      CastSpellByName(ABILITY_DEFENSIVE_STANCE_THREAT);
+  if (not UnitIsCivilian("target")) then
+    local class = UnitClass("player")
+    if (class == CLASS_WARRIOR_THREAT) then
+      WarriorThreat();
+    elseif (class == CLASS_PALADIN_THREAT) then
+      PaladinThreat();
     end
+  end
+end
 
-    if (SpellReady(ABILITY_REVENGE_THREAT) and RevengeAvail() and rage >= 5) then 
-      Debug("Revenge");
-      CastSpellByName(ABILITY_REVENGE_THREAT);
-    elseif (ShouldStackSunder and SpellReady(ABILITY_SUNDER_ARMOR_THREAT) and not HasFiveSunderArmors("target")) then
-      Debug("Sunder armor");
-      CastSpellByName(ABILITY_SUNDER_ARMOR_THREAT);
-    elseif (ShouldBuffShout and SpellReady(ABILITY_BATTLE_SHOUT_THREAT) and not HasBuff("player", "Ability_Warrior_BattleShout") and rage >= 10) then
-      Debug("Battle Shout");
-      CastSpellByName(ABILITY_BATTLE_SHOUT_THREAT);
-    elseif (SpellReady(ABILITY_SHIELD_SLAM_THREAT) and rage >= 20) then
-      Debug("Shield slam");
-      CastSpellByName(ABILITY_SHIELD_SLAM_THREAT);
-    elseif (SpellReady(ABILITY_HEROIC_STRIKE_THREAT) and rage >= 45) then
-      Debug("Heroic strike");
-      CastSpellByName(ABILITY_HEROIC_STRIKE_THREAT);
-    elseif (SpellReady(ABILITY_SUNDER_ARMOR_THREAT) and rage >= 60) then
-      Debug("Sunder armor");
-      CastSpellByName(ABILITY_SUNDER_ARMOR_THREAT);
+function WarriorThreat()
+  local rage = UnitMana("player");
+
+  if (ActiveStance() ~= 2) then
+    Debug("Changing to def stance");
+    CastSpellByName(ABILITY_DEFENSIVE_STANCE_THREAT);
+  end
+
+  if (SpellReady(ABILITY_REVENGE_THREAT) and RevengeAvail() and rage >= 5) then 
+    Debug("Revenge");
+    CastSpellByName(ABILITY_REVENGE_THREAT);
+  elseif (ShouldStackSunder and SpellReady(ABILITY_SUNDER_ARMOR_THREAT) and not HasFiveSunderArmors("target")) then
+    Debug("Sunder armor");
+    CastSpellByName(ABILITY_SUNDER_ARMOR_THREAT);
+  elseif (ShouldBuffShout and SpellReady(ABILITY_BATTLE_SHOUT_THREAT) and not HasBuff("player", "Ability_Warrior_BattleShout") and rage >= 10) then
+    Debug("Battle Shout");
+    CastSpellByName(ABILITY_BATTLE_SHOUT_THREAT);
+  elseif (SpellReady(ABILITY_SHIELD_SLAM_THREAT) and rage >= 20) then
+    Debug("Shield slam");
+    CastSpellByName(ABILITY_SHIELD_SLAM_THREAT);
+  elseif (SpellReady(ABILITY_HEROIC_STRIKE_THREAT) and rage >= 45) then
+    Debug("Heroic strike");
+    CastSpellByName(ABILITY_HEROIC_STRIKE_THREAT);
+  elseif (SpellReady(ABILITY_SUNDER_ARMOR_THREAT) and rage >= 60) then
+    Debug("Sunder armor");
+    CastSpellByName(ABILITY_SUNDER_ARMOR_THREAT);
+  end
+end  
+
+function PaladinThreat()
+  if (not HasBuff("player", "Spell_Holy_SealOfFury")) then
+    CastSpellByName(ABILITY_RIGHTEOUS_FURY);
+  end
+
+  if (not HasBuff("player", "Spell_Holy_DivineIntervention") and SpellReady(ABILITY_HOLY_SHIELD)) then
+    Debug("Holy Shield");
+    CastSpellByName(ABILITY_HOLY_SHIELD);
+  end
+
+  if (ShouldJudgementWisdom and not HasDebuff("target", "Spell_Holy_RighteousnessAura")) then
+    Debug("Target has no Judgement of Wisdom");
+    if (HasBuff("player", "Spell_Holy_RighteousnessAura")) then
+      Debug("Judgement of Wisdom");
+      CastSpellByName(ABILITY_JUDGEMENT);
+    else
+      Debug("Seal of Wisdom");
+      CastSpellByName(ABILITY_SEAL_OF_WISDOM);
     end
+  end
+
+  if (SpellReady(ABILITY_HOLY_STRILE)) then
+    Debug("Holy Strike");
+    CastSpellByName(ABILITY_HOLY_STRILE);
+  end
+
+  if (not HasBuff("player", "Ability_ThunderBolt")) then
+    CastSpellByName(ABILITY_SEAL_OF_RIGHTEOUSNESS)  
+  end
+
+  if (SpellReady(ABILITY_JUDGEMENT) and HasBuff("player", "Ability_ThunderBolt")) then
+    Debug("Judgement of Righteousness")
+    CastSpellByName(ABILITY_JUDGEMENT)
   end
 end
 
@@ -162,6 +219,14 @@ function Threat_SlashCommand(msg)
       ShouldStackSunder = true
       Print(SLASH_THREAT_SUNDER .. ": " .. SLASH_THREAT_ENABLED)
     end
+  elseif (command == "wisdom") then
+    if (ShouldJudgementWisdom) then
+      ShouldJudgementWisdom = false
+      Print(SLASH_THREAT_WISDOM .. ": " .. SLASH_THREAT_DISABLED)
+    else
+      ShouldJudgementWisdom = true
+      Print(SLASH_THREAT_WISDOM .. ": " .. SLASH_THREAT_ENABLED)
+    end
   elseif (command == "debug") then
     if (Threat_Configuration["Debug"]) then
       Threat_Configuration["Debug"] = false;
@@ -172,9 +237,12 @@ function Threat_SlashCommand(msg)
     end
   else
     Print(SLASH_THREAT_HELP_GENERAL)
+    Print(SLASH_THREAT_HELP_GENERAL_WARRIOR)
     Print(SLASH_THREAT_HELP_HELP)
     Print(SLASH_THREAT_HELP_SUNDER)
     Print(SLASH_THREAT_HELP_SHOUT)
+    Print(SLASH_THREAT_HELP_GENERAL_PALADIN)
+    Print(SLASH_THREAT_HELP_WISDOM)
   end
 end
 

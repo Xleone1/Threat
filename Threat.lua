@@ -1,9 +1,3 @@
---[[
-  Threat
-  By: Ollowain.
-	Credit: Fury.lua by Bhaerau.
-]]--
-
 -- Variables
 local RevengeReadyUntil = 0;
 
@@ -20,10 +14,11 @@ end
 -- Normal Functions
 
 local function Print(msg)
+  local coloredMessage = "|c00FFFF00"..msg.."|r"
   if (not DEFAULT_CHAT_FRAME) then
     return;
   end
-  DEFAULT_CHAT_FRAME:AddMessage(msg);
+  DEFAULT_CHAT_FRAME:AddMessage(coloredMessage);
 end
 
 local function Debug(msg)
@@ -109,50 +104,36 @@ function RevengeAvail()
   end
 end
 
-function ShieldSlamLearned()
-  if UnitClass("player") == "Warrior" then
-    local _, _, _, _, ss = GetTalentInfo(3,17);
-    if (ss == 1) then
-      return true;
-    else
-      return nil;
-    end
-  end
-end
-
 
 function Threat()
   if (not UnitIsCivilian("target") and UnitClass("player") == CLASS_WARRIOR_THREAT) then
 
     local rage = UnitMana("player");
 
-    if (not ThreatAttack) then
-      Debug("Starting AutoAttack");
-      AttackTarget();
-    end
-
     if (ActiveStance() ~= 2) then
       Debug("Changing to def stance");
       CastSpellByName(ABILITY_DEFENSIVE_STANCE_THREAT);
     end
 
-    if (SpellReady(ABILITY_BATTLE_SHOUT_THREAT) and not HasBuff("player", "Ability_Warrior_BattleShout") and rage >= 10) then
-      Debug("Battle Shout");
-      CastSpellByName(ABILITY_BATTLE_SHOUT_THREAT);
-    elseif (SpellReady(ABILITY_SHIELD_SLAM_THREAT) and rage >= 20 and ShieldSlamLearned()) then
-      Debug("Shield slam");
-      CastSpellByName(ABILITY_SHIELD_SLAM_THREAT);
-    elseif (SpellReady(ABILITY_REVENGE_THREAT) and RevengeAvail() and rage >= 5) then
+    if (SpellReady(ABILITY_REVENGE_THREAT) and RevengeAvail() and rage >= 5) then 
       Debug("Revenge");
       CastSpellByName(ABILITY_REVENGE_THREAT);
-    elseif (SpellReady(ABILITY_SUNDER_ARMOR_THREAT) and rage >= 15 and not (HasFiveSunderArmors("target"))) then
+    elseif (ShouldStackSunder and SpellReady(ABILITY_SUNDER_ARMOR_THREAT) and not HasFiveSunderArmors("target")) then
       Debug("Sunder armor");
       CastSpellByName(ABILITY_SUNDER_ARMOR_THREAT);
-    elseif (SpellReady(ABILITY_HEROIC_STRIKE_THREAT) and rage >= 25) then
+    elseif (ShouldBuffShout and SpellReady(ABILITY_BATTLE_SHOUT_THREAT) and not HasBuff("player", "Ability_Warrior_BattleShout") and rage >= 10) then
+      Debug("Battle Shout");
+      CastSpellByName(ABILITY_BATTLE_SHOUT_THREAT);
+    elseif (SpellReady(ABILITY_SHIELD_SLAM_THREAT) and rage >= 20) then
+      Debug("Shield slam");
+      CastSpellByName(ABILITY_SHIELD_SLAM_THREAT);
+    elseif (SpellReady(ABILITY_HEROIC_STRIKE_THREAT) and rage >= 45) then
       Debug("Heroic strike");
       CastSpellByName(ABILITY_HEROIC_STRIKE_THREAT);
+    elseif (SpellReady(ABILITY_SUNDER_ARMOR_THREAT) and rage >= 60) then
+      Debug("Sunder armor");
+      CastSpellByName(ABILITY_SUNDER_ARMOR_THREAT);
     end
-
   end
 end
 
@@ -165,6 +146,22 @@ function Threat_SlashCommand(msg)
   end
   if (command == nil or command == "") then
     Threat();
+  elseif (command == "shout") then
+    if (ShouldBuffShout) then
+      ShouldBuffShout = false
+      Print(SLASH_THREAT_SHOUT .. ": " .. SLASH_THREAT_DISABLED)
+    else
+      ShouldBuffShout = true
+      Print(SLASH_THREAT_SHOUT .. ": " .. SLASH_THREAT_ENABLED)
+    end
+  elseif (command == "sunder") then
+    if (ShouldStackSunder) then
+      ShouldStackSunder = false
+      Print(SLASH_THREAT_SUNDER .. ": " .. SLASH_THREAT_DISABLED)
+    else
+      ShouldStackSunder = true
+      Print(SLASH_THREAT_SUNDER .. ": " .. SLASH_THREAT_ENABLED)
+    end
   elseif (command == "debug") then
     if (Threat_Configuration["Debug"]) then
       Threat_Configuration["Debug"] = false;
@@ -174,7 +171,10 @@ function Threat_SlashCommand(msg)
       Print(BINDING_HEADER_THREAT .. ": " .. SLASH_THREAT_DEBUG .. " " .. SLASH_THREAT_ENABLED .. ".")
     end
   else
-    Print(SLASH_THREAT_HELP)
+    Print(SLASH_THREAT_HELP_GENERAL)
+    Print(SLASH_THREAT_HELP_HELP)
+    Print(SLASH_THREAT_HELP_SUNDER)
+    Print(SLASH_THREAT_HELP_SHOUT)
   end
 end
 
@@ -195,10 +195,6 @@ end
 function Threat_OnEvent(event)
   if (event == "VARIABLES_LOADED") then
     Threat_Configuration_Init()
-  elseif (event == "PLAYER_ENTER_COMBAT") then
-    ThreatAttack = true;
-  elseif (event == "PLAYER_LEAVE_COMBAT") then
-    ThreatAttack = nil;
   elseif (event == "CHAT_MSG_COMBAT_CREATURE_VS_SELF_MISSES")then
     if string.find(arg1,"You block")
     or string.find(arg1,"You parry")

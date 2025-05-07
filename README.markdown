@@ -1,6 +1,6 @@
 # Threat
 
-A World of Warcraft Vanilla (v1.1.12) Addon to simplify Warrior tanking.
+A World of Warcraft Vanilla (v1.1.12) Addon to simplify tanking.
 
 ## Usage
 
@@ -32,3 +32,4 @@ Create a macro to call `Threat()` or `/threat`:
     /threat debug       Toggle debug messages on/off
     /threat sunder      Stack 5 sunder always
     /threat shout       Always keep Battle Shount on yourself
+    /threat wisdom      Always keep Judgement of Wisdom on target

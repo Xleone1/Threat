@@ -1,6 +1,10 @@
 # Threat
 
 A World of Warcraft Vanilla (v1.1.12) Addon to simplify tanking.
+Classes supported by addon:
+Warrior
+Paladin
+Druid
 
 ## Usage
 

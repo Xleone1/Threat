@@ -125,6 +125,8 @@ function Threat()
       WarriorThreat();
     elseif (class == CLASS_PALADIN_THREAT) then
       PaladinThreat();
+    elseif (class ==CLASS_DRUID_THREAT) then
+      DruidThreat();
     end
   end
 end
@@ -191,6 +193,31 @@ function PaladinThreat()
   if (SpellReady(ABILITY_JUDGEMENT) and HasBuff("player", "Ability_ThunderBolt")) then
     Debug("Judgement of Righteousness")
     CastSpellByName(ABILITY_JUDGEMENT)
+  end
+end
+
+function DruidThreat()
+  local rage = UnitMana("player");
+
+  if (ActiveStance() ~= 1) then
+    Debug("Changing to bear form");
+    CastShapeshiftForm(1)
+  end
+
+  if (HasBuff("player", "Spell_Shadow_ManaBurn") and SpellReady(ABILITY_SAVAGE_BITE)) then
+    Debug("Savage Bite")
+    CastSpellByName(ABILITY_SAVAGE_BITE)
+  end
+
+  if (SpellReady(ABILITY_SAVAGE_BITE) and rage >= 30) then
+    Debug("Savage Bite")
+    CastSpellByName(ABILITY_SAVAGE_BITE)
+  elseif (SpellReady(ABILITY_SWIPE) and rage >= 45) then
+    Debug("Swipe")
+    CastSpellByName(ABILITY_SWIPE)
+  elseif (SpellReady(ABILITY_MAUL) and rage >= 10) then
+    Debug("Maul")
+    CastSpellByName(ABILITY_MAUL)
   end
 end
 

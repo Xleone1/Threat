@@ -62,3 +62,5 @@ SLASH_THREAT_HELP_WISDOM          = "   /threat wisdom - always use Judgement of
 SLASH_THREAT_SUNDER		          = "Always stack Sunder Armor";
 SLASH_THREAT_SHOUT		          = "Always keep Battle Shout on yourself";
 SLASH_THREAT_WISDOM		          = "Always keep Judgement of Wisdom on target";
+
+RAGE_DESCRIPTION_REGEX_THREAT     = "(%d+)%s*Rage";

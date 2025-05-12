@@ -117,6 +117,38 @@ function RevengeAvail()
   end
 end
 
+-- taken from https://github.com/allfoxwy/Threat
+function RageCost(spellName)
+    -- Must do this SetOwner in this function, or tooltip would be blank
+    ThreatTooltip:SetOwner(UIParent, "ANCHOR_NONE");
+
+    local spellID = SpellId(spellName);
+    if not spellID then
+        -- if we can't find this spell in book, we return a huge cost so we won't use it
+        Debug("Can't find " .. spellName .. " in book");
+        return 9999;
+    end
+
+    ThreatTooltip:SetSpell(spellID, BOOKTYPE_SPELL);
+
+    local lineCount = ThreatTooltip:NumLines();
+
+    for i = 1, lineCount do
+        local leftText = getglobal("ThreatTooltipTextLeft" .. i);
+
+        if leftText:GetText() then
+            local _, _, rage = string.find(leftText:GetText(), RAGE_DESCRIPTION_REGEX_THREAT);
+
+            if rage then
+                return tonumber(rage);
+            end
+        end
+    end
+
+    -- Spells like taunt doesn't cost rage, they dont have rage cost in description
+    return 0;
+end
+
 
 function Threat()
   if (not UnitIsCivilian("target")) then
@@ -133,28 +165,32 @@ end
 
 function WarriorThreat()
   local rage = UnitMana("player");
+  local revengeCost = RageCost(ABILITY_REVENGE_THREAT);
+  local apCost = RageCost(ABILITY_BATTLE_SHOUT_THREAT);
+  local hsCost = RageCost(ABILITY_HEROIC_STRIKE_THREAT);
+  local shieldSlamCost = RageCost(ABILITY_SHIELD_SLAM_THREAT);
 
   if (ActiveStance() ~= 2) then
     Debug("Changing to def stance");
     CastSpellByName(ABILITY_DEFENSIVE_STANCE_THREAT);
   end
 
-  if (SpellReady(ABILITY_REVENGE_THREAT) and RevengeAvail() and rage >= 5) then 
+  if (SpellReady(ABILITY_REVENGE_THREAT) and RevengeAvail() and rage >= revengeCost) then 
     Debug("Revenge");
     CastSpellByName(ABILITY_REVENGE_THREAT);
   elseif (ShouldStackSunder and SpellReady(ABILITY_SUNDER_ARMOR_THREAT) and not HasFiveSunderArmors("target")) then
     Debug("Sunder armor");
     CastSpellByName(ABILITY_SUNDER_ARMOR_THREAT);
-  elseif (ShouldBuffShout and SpellReady(ABILITY_BATTLE_SHOUT_THREAT) and not HasBuff("player", "Ability_Warrior_BattleShout") and rage >= 10) then
+  elseif (ShouldBuffShout and SpellReady(ABILITY_BATTLE_SHOUT_THREAT) and not HasBuff("player", "Ability_Warrior_BattleShout") and rage >= apCost) then
     Debug("Battle Shout");
     CastSpellByName(ABILITY_BATTLE_SHOUT_THREAT);
-  elseif (SpellReady(ABILITY_SHIELD_SLAM_THREAT) and rage >= 20) then
+  elseif (SpellReady(ABILITY_SHIELD_SLAM_THREAT) and rage >= shieldSlamCost) then
     Debug("Shield slam");
     CastSpellByName(ABILITY_SHIELD_SLAM_THREAT);
-  elseif (SpellReady(ABILITY_HEROIC_STRIKE_THREAT) and rage >= 45) then
+  elseif (SpellReady(ABILITY_HEROIC_STRIKE_THREAT) and rage >= (shieldSlamCost + hsCost)) then
     Debug("Heroic strike");
     CastSpellByName(ABILITY_HEROIC_STRIKE_THREAT);
-  elseif (SpellReady(ABILITY_SUNDER_ARMOR_THREAT) and rage >= 60) then
+  elseif (SpellReady(ABILITY_SUNDER_ARMOR_THREAT) and rage >= 80) then
     Debug("Sunder armor");
     CastSpellByName(ABILITY_SUNDER_ARMOR_THREAT);
   end

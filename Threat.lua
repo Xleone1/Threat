@@ -175,10 +175,12 @@ function WarriorThreat()
     CastSpellByName(ABILITY_DEFENSIVE_STANCE_THREAT);
   end
 
-  if (SpellReady(ABILITY_REVENGE_THREAT) and RevengeAvail() and rage >= revengeCost) then 
+  if (SpellReady(ABILITY_REVENGE_THREAT) and RevengeAvail() and rage >= revengeCost) then
     Debug("Revenge");
     CastSpellByName(ABILITY_REVENGE_THREAT);
-  elseif (ShouldStackSunder and SpellReady(ABILITY_SUNDER_ARMOR_THREAT) and not HasFiveSunderArmors("target")) then
+  elseif (ShouldStackSunder and SpellReady(ABILITY_SUNDER_ARMOR_THREAT)
+          and not HasDebuff("targe", "Ability_Warrior_Riposte")
+          and not HasFiveSunderArmors("target")) then
     Debug("Sunder armor");
     CastSpellByName(ABILITY_SUNDER_ARMOR_THREAT);
   elseif (ShouldBuffShout and SpellReady(ABILITY_BATTLE_SHOUT_THREAT) and not HasBuff("player", "Ability_Warrior_BattleShout") and rage >= apCost) then
@@ -194,7 +196,7 @@ function WarriorThreat()
     Debug("Sunder armor");
     CastSpellByName(ABILITY_SUNDER_ARMOR_THREAT);
   end
-end  
+end
 
 function PaladinThreat()
   if (not HasBuff("player", "Spell_Holy_SealOfFury")) then
@@ -223,7 +225,7 @@ function PaladinThreat()
   end
 
   if (not HasBuff("player", "Ability_ThunderBolt")) then
-    CastSpellByName(ABILITY_SEAL_OF_RIGHTEOUSNESS)  
+    CastSpellByName(ABILITY_SEAL_OF_RIGHTEOUSNESS)
   end
 
   if (SpellReady(ABILITY_JUDGEMENT) and HasBuff("player", "Ability_ThunderBolt")) then

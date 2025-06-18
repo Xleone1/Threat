@@ -242,8 +242,8 @@ function DruidThreat()
   if (ActiveStance() ~= 1) then
     Debug("Changing to bear form");
     CastShapeshiftForm(1)
-    return
-  end
+    return -- prevent any other action this cycle
+
 
   -- AOE MODE
   if ShouldUseAoe then
@@ -316,6 +316,7 @@ if (HasBuff("player", "Spell_Shadow_ManaBurn") and SpellReady(ABILITY_SAVAGE_BIT
     return
   end
 end
+
 
 -- Chat Handlers
 

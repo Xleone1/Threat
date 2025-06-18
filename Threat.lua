@@ -240,6 +240,7 @@ function DruidThreat()
   if (ActiveStance() ~= 1) then
     Debug("Changing to bear form");
     CastShapeshiftForm(1)
+    return -- prevent any other action this cycle
   end
 
   if (HasBuff("player", "Spell_Shadow_ManaBurn") and SpellReady(ABILITY_SAVAGE_BITE)) then
@@ -258,6 +259,7 @@ function DruidThreat()
     CastSpellByName(ABILITY_MAUL)
   end
 end
+
 
 -- Chat Handlers
 

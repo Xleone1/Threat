@@ -1,4 +1,5 @@
 -- Variables
+ShouldUseAoe = false
 local RevengeReadyUntil = 0;
 
 function Threat_Configuration_Init()
@@ -294,6 +295,16 @@ function Threat_SlashCommand(msg)
       ShouldJudgementWisdom = true
       Print(SLASH_THREAT_WISDOM .. ": " .. SLASH_THREAT_ENABLED)
     end
+
+    elseif (command == "aoe") then
+    if (ShouldUseAoe) then
+      ShouldUseAoe = false
+      Print("AoE mode: Disabled")
+    else
+      ShouldUseAoe = true
+      Print("AoE mode: Enabled")
+    end
+
   elseif (command == "debug") then
     if (Threat_Configuration["Debug"]) then
       Threat_Configuration["Debug"] = false;

@@ -47,6 +47,11 @@ ABILITY_SEAL_OF_RIGHTEOUSNESS     = "Seal of Righteousness"
 ABILITY_SAVAGE_BITE               = "Savage Bite"
 ABILITY_MAUL                      = "Maul"
 ABILITY_SWIPE                     = "Swipe"
+ABILITY_DEMORALIZING_ROAR 	      = "Demoralizing Roar";
+ABILITY_SAVAGE_BITE 			  = "Savage Bite";
+ABILITY_GROWL 					  = "Growl";
+ABILITY_FAERIE_FIRE 			  = "Faerie Fire (Feral)";
+
 
 SLASH_THREAT_ENABLED              = "enabled";
 SLASH_THREAT_DISABLED             = "disabled";

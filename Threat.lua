@@ -1,5 +1,4 @@
 -- Variables
-ShouldUseAoe = false
 local RevengeReadyUntil = 0;
 
 function Threat_Configuration_Init()
@@ -238,82 +237,26 @@ end
 function DruidThreat()
   local rage = UnitMana("player");
 
-  -- Enter Bear Form if not already
   if (ActiveStance() ~= 1) then
     Debug("Changing to bear form");
     CastShapeshiftForm(1)
     return -- prevent any other action this cycle
-
-
-  -- AOE MODE
-  if ShouldUseAoe then
-    if (SpellReady(ABILITY_SWIPE) and rage >= RageCost(ABILITY_SWIPE)) then
-      Debug("Swipe")
-      CastSpellByName(ABILITY_SWIPE)
-      return
-    end
-
-    -- Use Demoralizing Roar if not already applied
-    if (SpellReady(ABILITY_DEMORALIZING_ROAR) and not HasDebuff("target", "Ability_Druid_DemoralizingRoar")) then
-      Debug("Demoralizing Roar")
-      CastSpellByName(ABILITY_DEMORALIZING_ROAR)
-      return
-    end
-
-    -- Backup: Maul a main target if excess rage
-    if (SpellReady(ABILITY_MAUL) and rage >= RageCost(ABILITY_MAUL)) then
-      Debug("Maul (AoE backup)")
-      CastSpellByName(ABILITY_MAUL)
-      return
-    end
-
-    return -- End AoE logic
   end
 
-  -- SINGLE-TARGET MODE
-
-  -- Use Faerie Fire (Feral) if not on cooldown or applied
-  if (SpellReady(ABILITY_FAERIE_FIRE) and not HasDebuff("target", "Spell_Nature_FaerieFire")) then
-    Debug("Faerie Fire (Feral)")
-    CastSpellByName(ABILITY_FAERIE_FIRE)
-    return
-  end
-
-  -- Use Growl if aggro is lost
-  if (UnitExists("targettarget") and UnitName("targettarget") ~= UnitName("player")) then
-    if SpellReady(ABILITY_GROWL) then
-      Debug("Growl (Taunt)")
-      CastSpellByName(ABILITY_GROWL)
-      return
-    end
-  end
-
-  -- Savage Bite
-if (HasBuff("player", "Spell_Shadow_ManaBurn") and SpellReady(ABILITY_SAVAGE_BITE)) then
+  if (HasBuff("player", "Spell_Shadow_ManaBurn") and SpellReady(ABILITY_SAVAGE_BITE)) then
     Debug("Savage Bite")
     CastSpellByName(ABILITY_SAVAGE_BITE)
-    return
   end
 
-  -- Maul - main threat filler
-  if (SpellReady(ABILITY_MAUL) and rage >= RageCost(ABILITY_MAUL)) then
+  if (SpellReady(ABILITY_SAVAGE_BITE) and rage >= 30) then
+    Debug("Savage Bite")
+    CastSpellByName(ABILITY_SAVAGE_BITE)
+  elseif (SpellReady(ABILITY_SWIPE) and rage >= 45) then
+    Debug("Swipe")
+    CastSpellByName(ABILITY_SWIPE)
+  elseif (SpellReady(ABILITY_MAUL) and rage >= 10) then
     Debug("Maul")
     CastSpellByName(ABILITY_MAUL)
-    return
-  end
-
-  -- Swipe as backup single-target filler
-  if (SpellReady(ABILITY_SWIPE) and rage >= RageCost(ABILITY_SWIPE)) then
-    Debug("Swipe (backup)")
-    CastSpellByName(ABILITY_SWIPE)
-    return
-  end
-
-  -- Demoralizing Roar utility if needed
-  if (SpellReady(ABILITY_DEMORALIZING_ROAR) and not HasDebuff("target", "Ability_Druid_DemoralizingRoar")) then
-    Debug("Demoralizing Roar")
-    CastSpellByName(ABILITY_DEMORALIZING_ROAR)
-    return
   end
 end
 
@@ -351,16 +294,6 @@ function Threat_SlashCommand(msg)
       ShouldJudgementWisdom = true
       Print(SLASH_THREAT_WISDOM .. ": " .. SLASH_THREAT_ENABLED)
     end
-
-    elseif (command == "aoe") then
-    if (ShouldUseAoe) then
-      ShouldUseAoe = false
-      Print("AoE mode: Disabled")
-    else
-      ShouldUseAoe = true
-      Print("AoE mode: Enabled")
-    end
-
   elseif (command == "debug") then
     if (Threat_Configuration["Debug"]) then
       Threat_Configuration["Debug"] = false;

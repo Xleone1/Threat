@@ -4,8 +4,6 @@ local lastAoECheck = 0
 local AUTO_AOE_THRESHOLD = 3 -- Number of enemies to trigger auto-AoE
 local MAX_ENEMY_SCAN_DISTANCE = 20 -- Yards to scan for enemies
 local Threat_AoE_ManualOverride = false
-local enemyCounterFrame = nil
-local SHOW_ENEMY_COUNTER = true  -- Toggle with /threat counter
 local RevengeReadyUntil = 0;
 
 function Threat_Configuration_Init()
@@ -26,44 +24,6 @@ end
 -- Normal Functions
 
 
-function CreateEnemyCounter()
-    if enemyCounterFrame then return end
-    
-    -- Frame creation
-    enemyCounterFrame = CreateFrame("Frame", nil, UIParent)
-    enemyCounterFrame:SetWidth(60)
-    enemyCounterFrame:SetHeight(20)
-    enemyCounterFrame:SetPoint("CENTER", 0, -200)
-    
-    -- Text display
-    enemyCounterFrame.text = enemyCounterFrame:CreateFontString(nil, "OVERLAY")
-    enemyCounterFrame.text:SetFont("Interface\\AddOns\\ShaguPlates\\fonts\\Myriad-Pro.ttf", 14, "OUTLINE")
-    enemyCounterFrame.text:SetAllPoints()
-    
-    -- Start hidden
-    enemyCounterFrame:Hide()
-end
-
-function UpdateEnemyCounter()
-    if not enemyCounterFrame or not SHOW_ENEMY_COUNTER then return end
-    
-    local count = CountNearbyEnemies()
-    enemyCounterFrame.text:SetText("Enemies: "..count)
-    
-    -- Color coding (optional)
-    if count >= AUTO_AOE_THRESHOLD then
-        enemyCounterFrame.text:SetTextColor(1, 0, 0) -- Red for AoE threshold
-    elseif count > 0 then
-        enemyCounterFrame.text:SetTextColor(1, 1, 0) -- Yellow for active combat
-    else
-        enemyCounterFrame.text:SetTextColor(0.5, 0.5, 0.5) -- Gray for no enemies
-    end
-    
-    -- Always show if enabled, regardless of count
-    enemyCounterFrame:Show()
-end
-
-
 function CountNearbyEnemies()
     local enemyCount = 0
     
@@ -72,20 +32,30 @@ function CountNearbyEnemies()
         enemyCount = enemyCount + 1
     end
     
-    -- Safely check party/raid members' targets
-    local inRaid = GetNumRaidMembers() > 0
-    local groupType = inRaid and "raid" or "party"
-    local groupSize = inRaid and GetNumRaidMembers() or GetNumPartyMembers()
-    
-    for i = 1, groupSize do
-        local unit = groupType..i.."target"
-        if UnitExists(unit) and UnitCanAttack("player", unit) then
-            -- Verify not duplicate and in range
-            if not UnitIsUnit("target", unit) and CheckInteractDistance(unit, 3) then
-                enemyCount = enemyCount + 1
-                -- Early exit if we hit threshold
-                if enemyCount >= AUTO_AOE_THRESHOLD then
-                    break
+    -- Check party/raid members' targets
+    if GetNumRaidMembers() > 0 then
+        -- In raid
+        for i = 1, GetNumRaidMembers() do
+            local unit = "raid"..i.."target"
+            if UnitExists(unit) and UnitCanAttack("player", unit) and not UnitIsUnit("target", unit) then
+                if CheckInteractDistance(unit, 3) then -- 3 = about 20 yards
+                    enemyCount = enemyCount + 1
+                    if enemyCount >= AUTO_AOE_THRESHOLD then
+                        return enemyCount
+                    end
+                end
+            end
+        end
+    else
+        -- In party
+        for i = 1, GetNumPartyMembers() do
+            local unit = "party"..i.."target"
+            if UnitExists(unit) and UnitCanAttack("player", unit) and not UnitIsUnit("target", unit) then
+                if CheckInteractDistance(unit, 3) then -- 3 = about 20 yards
+                    enemyCount = enemyCount + 1
+                    if enemyCount >= AUTO_AOE_THRESHOLD then
+                        return enemyCount
+                    end
                 end
             end
         end
@@ -348,6 +318,12 @@ function DruidThreat()
       return
     end
 
+    -- Use Demoralizing Roar if not already applied
+    if (SpellReady(ABILITY_DEMORALIZING_ROAR) and not HasDebuff("target", "Ability_Druid_DemoralizingRoar")) then
+      Debug("Demoralizing Roar")
+      CastSpellByName(ABILITY_DEMORALIZING_ROAR)
+      return
+    end
 
     -- Backup: Maul a main target if excess rage
     if (SpellReady(ABILITY_MAUL) and rage >= RageCost(ABILITY_MAUL)) then
@@ -398,6 +374,13 @@ if (HasBuff("player", "Spell_Shadow_ManaBurn") and SpellReady(ABILITY_SAVAGE_BIT
     return
   end
 
+  -- Demoralizing Roar utility if needed
+  if (SpellReady(ABILITY_DEMORALIZING_ROAR) and not HasDebuff("target", "Ability_Druid_DemoralizingRoar")) then
+    Debug("Demoralizing Roar")
+    CastSpellByName(ABILITY_DEMORALIZING_ROAR)
+    return
+  end
+end
 
 -- Chat Handlers
 
@@ -444,19 +427,6 @@ function Threat_SlashCommand(msg)
             Print("AoE mode: Enabled (Manual)")
         end
 
-elseif (command == "counter") then
-    SHOW_ENEMY_COUNTER = not SHOW_ENEMY_COUNTER
-    if SHOW_ENEMY_COUNTER then
-        CreateEnemyCounter()
-        UpdateEnemyCounter()
-        Print("Enemy counter: Enabled (Always visible)")
-    else
-        if enemyCounterFrame then
-            enemyCounterFrame:Hide()
-        end
-        Print("Enemy counter: Disabled")
-    end
-
   elseif (command == "debug") then
     if (Threat_Configuration["Debug"]) then
       Threat_Configuration["Debug"] = false;
@@ -482,8 +452,6 @@ function Threat_OnLoad()
   this:RegisterEvent("PLAYER_ENTER_COMBAT");
   this:RegisterEvent("PLAYER_LEAVE_COMBAT");
   this:RegisterEvent("CHAT_MSG_COMBAT_CREATURE_VS_SELF_MISSES");
-  this:RegisterEvent("PLAYER_REGEN_ENABLED")  -- Leaving combat
-  this:RegisterEvent("PLAYER_REGEN_DISABLED") -- Entering combat
 
   ThreatLastSpellCast = GetTime();
   ThreatLastStanceCast = GetTime();
@@ -492,22 +460,14 @@ function Threat_OnLoad()
 end
 
 function Threat_OnEvent(event)
-    if (event == "VARIABLES_LOADED") then
-        Threat_Configuration_Init()
-    elseif (event == "CHAT_MSG_COMBAT_CREATURE_VS_SELF_MISSES") then
-        if string.find(arg1, "You block") or 
-           string.find(arg1, "You parry") or 
-           string.find(arg1, "You dodge") then
-            Debug("Revenge soon ready")
-            RevengeReadyUntil = GetTime() + 4
-        end
-    elseif (event == "PLAYER_REGEN_DISABLED") then -- Entering combat
-        UpdateEnemyCounter()
-    elseif (event == "PLAYER_REGEN_ENABLED") then -- Leaving combat
-        if enemyCounterFrame then
-            enemyCounterFrame.text:SetText("Enemies: 0")
-            enemyCounterFrame.text:SetTextColor(0.5, 0.5, 0.5)
-            -- enemyCounterFrame:Hide() -- Remove this line to keep visible
-        end
+  if (event == "VARIABLES_LOADED") then
+    Threat_Configuration_Init()
+  elseif (event == "CHAT_MSG_COMBAT_CREATURE_VS_SELF_MISSES")then
+    if string.find(arg1,"You block")
+    or string.find(arg1,"You parry")
+    or string.find(arg1,"You dodge") then
+      Debug("Revenge soon ready");
+      RevengeReadyUntil = GetTime() + 4;
     end
+  end
 end

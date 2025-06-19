@@ -18,7 +18,7 @@ included, since they have different intentions.
 Clone the repository into your `Addons` folder:
 
     cd <WOW_BASE_DIR>/Interface/Addons
-    git clone https://github.com/Zedorff/Threat
+    git clone https://github.com/Xleone1/Threat
 
 Create a macro to call `Threat()` or `/threat`:
 
@@ -36,4 +36,6 @@ Create a macro to call `Threat()` or `/threat`:
     /threat debug       Toggle debug messages on/off
     /threat sunder      Stack 5 sunder always
     /threat shout       Always keep Battle Shount on yourself
-    /threat wisdom      Always keep Judgement of Wisdom on target
+    /threat wisdom      Always keep Judgement of Wisdom on target\
+    /threat aoe         Manually enables or disables AoE for druid rage gen.
+    /threat counter     Disables and enables counter for enemies currently attacking you.
